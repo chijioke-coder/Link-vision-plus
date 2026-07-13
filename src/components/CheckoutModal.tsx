@@ -14,7 +14,16 @@ interface CheckoutModalProps {
   options?: { label: string; price: string }[];
 }
 
-const states = ["Lagos", "Abuja", "Port Harcourt", "Kano", "Ibadan", "Enugu", "Kaduna", "Abeokuta"];
+const states = [
+  "Lagos",
+  "Abuja",
+  "Port Harcourt",
+  "Kano",
+  "Ibadan",
+  "Enugu",
+  "Kaduna",
+  "Abeokuta",
+];
 
 const initialState = {
   fullName: "",
@@ -23,8 +32,15 @@ const initialState = {
   stateCity: "Lagos",
 };
 
-const CheckoutModal = ({ isOpen, onClose, productName, productPrice }: CheckoutModalProps) => {
+const CheckoutModal = ({
+  isOpen,
+  onClose,
+  productName,
+  productPrice,
+  options = [],
+}: CheckoutModalProps) => {
   const [form, setForm] = useState(initialState);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -32,11 +48,9 @@ const CheckoutModal = ({ isOpen, onClose, productName, productPrice }: CheckoutM
     }
   }, [isOpen]);
 
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
-
   useEffect(() => {
-    if (options && options.length) {
-      setSelectedOption(options[0].label + "|" + options[0].price);
+    if (options.length > 0) {
+      setSelectedOption(`${options[0].label}|${options[0].price}`);
     } else {
       setSelectedOption(null);
     }
@@ -45,8 +59,13 @@ const CheckoutModal = ({ isOpen, onClose, productName, productPrice }: CheckoutM
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const selectedLabel = selectedOption ? selectedOption.split("|")[0] : productName;
-    const selectedPrice = selectedOption ? selectedOption.split("|")[1] : productPrice;
+    const selectedLabel = selectedOption
+      ? selectedOption.split("|")[0]
+      : productName;
+
+    const selectedPrice = selectedOption
+      ? selectedOption.split("|")[1]
+      : productPrice;
 
     const link = buildWhatsAppOrderLink({
       productName: `${productName} - ${selectedLabel}`,
@@ -71,84 +90,151 @@ const CheckoutModal = ({ isOpen, onClose, productName, productPrice }: CheckoutM
               <Sparkles className="h-4 w-4" />
               Fast checkout
             </div>
+
             <DialogHeader className="mt-3 text-left">
-              <DialogTitle className="text-2xl font-semibold text-white">Complete your order</DialogTitle>
+              <DialogTitle className="text-2xl font-semibold text-white">
+                Complete your order
+              </DialogTitle>
+
               <DialogDescription className="mt-2 max-w-md text-sm text-emerald-50/90">
-                We’ll send this order straight to the vendor on WhatsApp with your delivery details.
+                We’ll send this order straight to the vendor on WhatsApp with
+                your delivery details.
               </DialogDescription>
             </DialogHeader>
+
             <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-sm backdrop-blur">
               <span className="text-emerald-50">Selected item</span>
-              <span className="font-semibold">{productName} • {productPrice}</span>
+              <span className="font-semibold">
+                {productName} • {productPrice}
+              </span>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4 p-6">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <label htmlFor="fullName" className="text-sm font-medium text-foreground">Full Name</label>
+                <label
+                  htmlFor="fullName"
+                  className="text-sm font-medium text-foreground"
+                >
+                  Full Name
+                </label>
+
                 <Input
                   id="fullName"
                   placeholder="Amina Yusuf"
                   value={form.fullName}
-                  onChange={(event) => setForm((current) => ({ ...current, fullName: event.target.value }))}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      fullName: event.target.value,
+                    }))
+                  }
                   required
                 />
               </div>
+
               <div className="space-y-2">
-                <label htmlFor="phone" className="text-sm font-medium text-foreground">Phone Number</label>
+                <label
+                  htmlFor="phone"
+                  className="text-sm font-medium text-foreground"
+                >
+                  Phone Number
+                </label>
+
                 <Input
                   id="phone"
                   type="tel"
                   placeholder="08012345678"
                   value={form.phone}
-                  onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      phone: event.target.value,
+                    }))
+                  }
                   required
                 />
               </div>
             </div>
 
-            {options && options.length ? (
+            {options.length > 0 && (
               <div className="space-y-2">
-                <label htmlFor="productOption" className="text-sm font-medium text-foreground">Select Package / Memory Option</label>
+                <label
+                  htmlFor="productOption"
+                  className="text-sm font-medium text-foreground"
+                >
+                  Select Package / Memory Option
+                </label>
+
                 <Select
                   value={selectedOption ?? ""}
                   onValueChange={(value) => setSelectedOption(value)}
                 >
-                  <SelectTrigger id="productOption" className="bg-background">
+                  <SelectTrigger
+                    id="productOption"
+                    className="bg-background"
+                  >
                     <SelectValue placeholder="Choose an option" />
                   </SelectTrigger>
+
                   <SelectContent>
                     {options.map((opt) => (
-                      <SelectItem key={opt.label} value={opt.label + "|" + opt.price}>
+                      <SelectItem
+                        key={opt.label}
+                        value={`${opt.label}|${opt.price}`}
+                      >
                         {opt.label} • {opt.price}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-            ) : null}
+            )}
 
             <div className="space-y-2">
-              <label htmlFor="address" className="text-sm font-medium text-foreground">Delivery Address</label>
+              <label
+                htmlFor="address"
+                className="text-sm font-medium text-foreground"
+              >
+                Delivery Address
+              </label>
+
               <Textarea
                 id="address"
                 placeholder="No. 12, Allen Avenue, Ikeja"
                 value={form.address}
-                onChange={(event) => setForm((current) => ({ ...current, address: event.target.value }))}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    address: event.target.value,
+                  }))
+                }
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="stateCity" className="text-sm font-medium text-foreground">State / City</label>
+              <label
+                htmlFor="stateCity"
+                className="text-sm font-medium text-foreground"
+              >
+                State / City
+              </label>
+
               <Select
                 value={form.stateCity}
-                onValueChange={(value) => setForm((current) => ({ ...current, stateCity: value }))}
+                onValueChange={(value) =>
+                  setForm((current) => ({
+                    ...current,
+                    stateCity: value,
+                  }))
+                }
               >
                 <SelectTrigger id="stateCity" className="bg-background">
                   <SelectValue placeholder="Select your city" />
                 </SelectTrigger>
+
                 <SelectContent>
                   {states.map((state) => (
                     <SelectItem key={state} value={state}>
